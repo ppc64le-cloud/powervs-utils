@@ -33,6 +33,12 @@ func TestGetRegion(t *testing.T) {
 			false,
 		},
 		{
+			"Sao Paulo 01",
+			args{"sao01"},
+			"sao",
+			false,
+		},
+		{
 			"Washington DC",
 			args{"us-east"},
 			"us-east",

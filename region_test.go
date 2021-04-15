@@ -74,6 +74,18 @@ func TestGetRegion(t *testing.T) {
 			"tok",
 			false,
 		},
+		{
+			"Montreal",
+			args{"mon01"},
+			"mon",
+			false,
+		},
+		{
+			"Osaka",
+			args{"osa21"},
+			"osa",
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

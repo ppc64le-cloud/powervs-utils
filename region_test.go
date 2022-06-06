@@ -29,7 +29,7 @@ func TestGetRegion(t *testing.T) {
 		{
 			"Dallas 12",
 			args{"dal12"},
-			"us-south",
+			"dal",
 			false,
 		},
 		{

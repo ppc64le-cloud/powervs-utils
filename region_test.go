@@ -100,3 +100,43 @@ func TestGetRegion(t *testing.T) {
 		})
 	}
 }
+
+func TestVPCRegionForPowerVSRegion(t *testing.T) {
+	type args struct {
+		region string
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantRegion string
+		wantErr    bool
+	}{
+		{
+			"Dallas",
+			args{"dal"},
+			"us-south",
+			false,
+		},
+		{
+			"Osaka",
+			args{"eu-de1"},
+			"eu-de",
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			vpcRegion, err := VPCRegionForPowerVSRegion(tt.args.region)
+
+			if err != nil {
+				if !tt.wantErr {
+					t.Errorf("VPCRegionForPowerVSRegion() error = %v, wantErr %v", err, tt.wantErr)
+				}
+				return
+			}
+			if vpcRegion != tt.wantRegion {
+				t.Errorf("VPCRegionForPowerVSRegion() gotRegion = %v, want %v", vpcRegion, tt.wantRegion)
+			}
+		})
+	}
+}

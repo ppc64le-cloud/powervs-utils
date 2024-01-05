@@ -39,9 +39,27 @@ func TestGetRegion(t *testing.T) {
 			false,
 		},
 		{
+			"Sao Paulo 04",
+			args{"sao04"},
+			"sao",
+			false,
+		},
+		{
 			"Washington DC",
 			args{"us-east"},
 			"us-east",
+			false,
+		},
+		{
+			"Washington DC 06",
+			args{"wdc06"},
+			"wdc",
+			false,
+		},
+		{
+			"Washington DC 07",
+			args{"wdc07"},
+			"wdc",
 			false,
 		},
 		{
@@ -84,6 +102,18 @@ func TestGetRegion(t *testing.T) {
 			"Osaka",
 			args{"osa21"},
 			"osa",
+			false,
+		},
+		{
+			"Madrid 02",
+			args{"mad02"},
+			"mad",
+			false,
+		},
+		{
+			"Madrid 04",
+			args{"mad04"},
+			"mad",
 			false,
 		},
 	}

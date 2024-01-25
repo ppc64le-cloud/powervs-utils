@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"strings"
+
+	"k8s.io/apimachinery/pkg/util/sets"
 )
 
 func GetRegion(zone string) (region string, err error) {
@@ -46,6 +48,7 @@ type Region struct {
 	VPCRegion   string
 	COSRegion   string
 	Zones       []string
+	SysTypes    []string
 }
 
 // Regions provides a mapping between Power VS and IBM Cloud VPC and IBM COS regions.
@@ -54,7 +57,11 @@ var Regions = map[string]Region{
 		Description: "Dallas, USA",
 		VPCRegion:   "us-south",
 		COSRegion:   "us-south",
-		Zones:       []string{"dal12"},
+		Zones:       []string{
+			"dal10",
+			"dal12",
+		},
+		SysTypes:    []string{"s922", "e980"},
 	},
 	"eu-de": {
 		Description: "Frankfurt, Germany",
@@ -64,6 +71,7 @@ var Regions = map[string]Region{
 			"eu-de-1",
 			"eu-de-2",
 		},
+		SysTypes:    []string{"s922", "e980"},
 	},
 	"lon": {
 		Description: "London, UK.",
@@ -73,27 +81,31 @@ var Regions = map[string]Region{
 			"lon04",
 			"lon06",
 		},
+		SysTypes:    []string{"s922", "e980"},
 	},
 	"mad": {
 		Description: "Madrid, Spain",
 		VPCRegion:   "eu-es",
-		COSRegion:   "eu-es",
+		COSRegion:   "eu-de",		// @HACK - PowerVS says COS not supported in this region
 		Zones: []string{
 			"mad02",
 			"mad04",
 		},
+		SysTypes:    []string{"s1022"},
 	},
 	"mon": {
 		Description: "Montreal, Canada",
 		VPCRegion:   "ca-tor",
 		COSRegion:   "ca-tor",
 		Zones:       []string{"mon01"},
+		SysTypes:    []string{"s922", "e980"},
 	},
 	"osa": {
 		Description: "Osaka, Japan",
 		VPCRegion:   "jp-osa",
 		COSRegion:   "jp-osa",
 		Zones:       []string{"osa21"},
+		SysTypes:    []string{"s922", "e980"},
 	},
 	"syd": {
 		Description: "Sydney, Australia",
@@ -103,6 +115,7 @@ var Regions = map[string]Region{
 			"syd04",
 			"syd05",
 		},
+		SysTypes:    []string{"s922", "e980"},
 	},
 	"sao": {
 		Description: "São Paulo, Brazil",
@@ -112,18 +125,21 @@ var Regions = map[string]Region{
 			"sao01",
 			"sao04",
 		},
+		SysTypes:    []string{"s922", "e980"},
 	},
 	"tok": {
 		Description: "Tokyo, Japan",
 		VPCRegion:   "jp-tok",
 		COSRegion:   "jp-tok",
 		Zones:       []string{"tok04"},
+		SysTypes:    []string{"s922", "e980"},
 	},
 	"us-east": {
 		Description: "Washington DC, USA",
 		VPCRegion:   "us-east",
 		COSRegion:   "us-east",
 		Zones:       []string{"us-east"},
+		SysTypes:    []string{}, // Missing
 	},
 	"wdc": {
 		Description: "Washington DC, USA",
@@ -133,7 +149,19 @@ var Regions = map[string]Region{
 			"wdc06",
 			"wdc07",
 		},
+		SysTypes:    []string{"s922", "e980"},
 	},
+}
+
+// COSRegionForVPCRegion returns the corresponding COS region for the given VPC region
+func COSRegionForVPCRegion(vpcRegion string) (string, error) {
+	for r := range Regions {
+		if vpcRegion == Regions[r].VPCRegion {
+			return Regions[r].COSRegion, nil
+		}
+	}
+
+	return "", fmt.Errorf("COS region corresponding to a VPC region %s not found ", vpcRegion)
 }
 
 // VPCRegionForPowerVSRegion returns the VPC region for the specified PowerVS region.
@@ -181,4 +209,57 @@ func RegionShortNames() []string {
 		keys = append(keys, r)
 	}
 	return keys
+}
+
+// ValidateZone validates that the given zone is known/tested.
+func ValidateZone(zone string) bool {
+	for r := range Regions {
+		for z := range Regions[r].Zones {
+			if zone == Regions[r].Zones[z] {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// ZoneNames returns the list of zone names.
+func ZoneNames() []string {
+	zones := []string{}
+	for r := range Regions {
+		for z := range Regions[r].Zones {
+			zones = append(zones, Regions[r].Zones[z])
+		}
+	}
+	return zones
+}
+
+// RegionFromZone returns the region name for a given zone name.
+func RegionFromZone(zone string) string {
+	for r := range Regions {
+		for z := range Regions[r].Zones {
+			if zone == Regions[r].Zones[z] {
+				return r
+			}
+		}
+	}
+	return ""
+}
+
+// AvailableSysTypes returns the default system type for the zone.
+func AvailableSysTypes(region string) ([]string, error) {
+	knownRegion, ok := Regions[region]
+	if !ok {
+		return nil, fmt.Errorf("unknown region name provided")
+	}
+	return knownRegion.SysTypes, nil
+}
+
+// AllKnownSysTypes returns aggregated known system types from all regions.
+func AllKnownSysTypes() sets.Set[string] {
+	sysTypes := sets.New[string]()
+	for _, region := range Regions {
+		sysTypes.Insert(region.SysTypes...)
+	}
+	return sysTypes
 }

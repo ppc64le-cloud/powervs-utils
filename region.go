@@ -44,114 +44,148 @@ func GetRegion(zone string) (region string, err error) {
 
 // Region describes respective IBM Cloud COS region, VPC region and Zones associated with a region in Power VS.
 type Region struct {
-	Description string
-	VPCRegion   string
-	COSRegion   string
-	Zones       []string
-	SysTypes    []string
+	Description  string
+	VPCRegion    string
+	COSRegion    string
+	Zones        []string
+	SysTypes     []string
+	IPISupported bool
 }
 
 // Regions provides a mapping between Power VS and IBM Cloud VPC and IBM COS regions.
-var Regions = map[string]Region{
+var Regions = FullRegions
+
+// Switch the list of regions to all of the regions.
+func UseFullRegions () {
+	Regions = FullRegions
+}
+
+// Switch the list of regions to only the regions supported by the IPI installer.
+func UseIPIRegions () {
+	IPIRegions = make(map[string]Region)
+
+	for region := range FullRegions {
+		if FullRegions[region].IPISupported {
+			IPIRegions[region] = FullRegions[region]
+		}
+	}
+
+	Regions = IPIRegions
+}
+
+var FullRegions = map[string]Region{
 	"dal": {
-		Description: "Dallas, USA",
-		VPCRegion:   "us-south",
-		COSRegion:   "us-south",
-		Zones:       []string{
+		Description:  "Dallas, USA",
+		VPCRegion:    "us-south",
+		COSRegion:    "us-south",
+		Zones:        []string{
 			"dal10",
 			"dal12",
 		},
-		SysTypes:    []string{"s922", "e980"},
+		SysTypes:     []string{"s922", "e980"},
+		IPISupported: true,
 	},
 	"eu-de": {
-		Description: "Frankfurt, Germany",
-		VPCRegion:   "eu-de",
-		COSRegion:   "eu-de",
+		Description:  "Frankfurt, Germany",
+		VPCRegion:    "eu-de",
+		COSRegion:    "eu-de",
 		Zones: []string{
 			"eu-de-1",
 			"eu-de-2",
 		},
-		SysTypes:    []string{"s922", "e980"},
+		SysTypes:     []string{"s922", "e980"},
+		IPISupported: true,
 	},
 	"lon": {
-		Description: "London, UK.",
-		VPCRegion:   "eu-gb",
-		COSRegion:   "eu-gb",
+		Description:  "London, UK.",
+		VPCRegion:    "eu-gb",
+		COSRegion:    "eu-gb",
 		Zones: []string{
 			"lon04",
 			"lon06",
 		},
-		SysTypes:    []string{"s922", "e980"},
+		SysTypes:     []string{"s922", "e980"},
+		IPISupported: false,
 	},
 	"mad": {
-		Description: "Madrid, Spain",
-		VPCRegion:   "eu-es",
-		COSRegion:   "eu-de",		// @HACK - PowerVS says COS not supported in this region
+		Description:  "Madrid, Spain",
+		VPCRegion:    "eu-es",
+		COSRegion:    "eu-de",		// @HACK - PowerVS says COS not supported in this region
 		Zones: []string{
 			"mad02",
 			"mad04",
 		},
-		SysTypes:    []string{"s1022"},
+		SysTypes:     []string{"s1022"},
+		IPISupported: true,
 	},
 	"mon": {
-		Description: "Montreal, Canada",
-		VPCRegion:   "ca-tor",
-		COSRegion:   "ca-tor",
-		Zones:       []string{"mon01"},
-		SysTypes:    []string{"s922", "e980"},
+		Description:  "Montreal, Canada",
+		VPCRegion:    "ca-tor",
+		COSRegion:    "ca-tor",
+		Zones:        []string{"mon01"},
+		SysTypes:     []string{"s922", "e980"},
+		IPISupported: false,
 	},
 	"osa": {
-		Description: "Osaka, Japan",
-		VPCRegion:   "jp-osa",
-		COSRegion:   "jp-osa",
-		Zones:       []string{"osa21"},
-		SysTypes:    []string{"s922", "e980"},
+		Description:  "Osaka, Japan",
+		VPCRegion:    "jp-osa",
+		COSRegion:    "jp-osa",
+		Zones:        []string{"osa21"},
+		SysTypes:     []string{"s922", "e980"},
+		IPISupported: false,
 	},
 	"syd": {
-		Description: "Sydney, Australia",
-		VPCRegion:   "au-syd",
-		COSRegion:   "au-syd",
+		Description:  "Sydney, Australia",
+		VPCRegion:    "au-syd",
+		COSRegion:    "au-syd",
 		Zones: []string{
 			"syd04",
 			"syd05",
 		},
-		SysTypes:    []string{"s922", "e980"},
+		SysTypes:     []string{"s922", "e980"},
+		IPISupported: false,
 	},
 	"sao": {
-		Description: "São Paulo, Brazil",
-		VPCRegion:   "br-sao",
-		COSRegion:   "br-sao",
-		Zones:       []string{
+		Description:  "São Paulo, Brazil",
+		VPCRegion:    "br-sao",
+		COSRegion:    "br-sao",
+		Zones:        []string{
 			"sao01",
 			"sao04",
 		},
-		SysTypes:    []string{"s922", "e980"},
+		SysTypes:     []string{"s922", "e980"},
+		IPISupported: true,
 	},
 	"tok": {
-		Description: "Tokyo, Japan",
-		VPCRegion:   "jp-tok",
-		COSRegion:   "jp-tok",
-		Zones:       []string{"tok04"},
-		SysTypes:    []string{"s922", "e980"},
+		Description:  "Tokyo, Japan",
+		VPCRegion:    "jp-tok",
+		COSRegion:    "jp-tok",
+		Zones:        []string{"tok04"},
+		SysTypes:     []string{"s922", "e980"},
+		IPISupported: false,
 	},
 	"us-east": {
-		Description: "Washington DC, USA",
-		VPCRegion:   "us-east",
-		COSRegion:   "us-east",
-		Zones:       []string{"us-east"},
-		SysTypes:    []string{}, // Missing
+		Description:  "Washington DC, USA",
+		VPCRegion:    "us-east",
+		COSRegion:    "us-east",
+		Zones:        []string{"us-east"},
+		SysTypes:     []string{}, // Missing
+		IPISupported: false,
 	},
 	"wdc": {
-		Description: "Washington DC, USA",
-		VPCRegion:   "us-east",
-		COSRegion:   "us-east",
+		Description:  "Washington DC, USA",
+		VPCRegion:    "us-east",
+		COSRegion:    "us-east",
 		Zones: []string{
 			"wdc06",
 			"wdc07",
 		},
-		SysTypes:    []string{"s922", "e980"},
+		SysTypes:     []string{"s922", "e980"},
+		IPISupported: true,
 	},
 }
+
+var IPIRegions = map[string]Region{}
 
 // COSRegionForVPCRegion returns the corresponding COS region for the given VPC region
 func COSRegionForVPCRegion(vpcRegion string) (string, error) {

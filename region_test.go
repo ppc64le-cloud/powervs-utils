@@ -170,3 +170,56 @@ func TestVPCRegionForPowerVSRegion(t *testing.T) {
 		})
 	}
 }
+
+func TestIPIMatches(t *testing.T) {
+	type args struct {
+		region string
+	}
+	type test []struct {
+		name          string
+		args          args
+		wantVPCRegion string
+		wantCOSRegion string
+	}
+	var i = 0
+
+	UseIPIRegions ()
+
+	tests := make(test, len(Regions))
+	for key, _ := range Regions {
+		tests[i].name = IPIRegions[key].Description
+		tests[i].args = args{key}
+		tests[i].wantVPCRegion = IPIRegions[key].VPCRegion
+		tests[i].wantCOSRegion = IPIRegions[key].COSRegion
+		i++
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			vpcRegion, err := VPCRegionForPowerVSRegion(tt.args.region)
+			if err != nil {
+				t.Errorf("VPCRegionForPowerVSRegion() error = %v", err)
+			}
+			if vpcRegion != tt.wantVPCRegion {
+				t.Errorf("VPCRegionForPowerVSRegion() vpcRegion = %v, want %v", vpcRegion, tt.wantVPCRegion)
+			}
+			if !ValidateVPCRegion(tt.wantVPCRegion) {
+				t.Errorf("ValidateVPCRegion() fails!")
+			}
+			cosRegion, err := COSRegionForVPCRegion(tt.wantVPCRegion)
+			if err != nil {
+				t.Errorf("COSRegionForVPCRegion() error = %v", err)
+			}
+			if cosRegion != tt.wantCOSRegion {
+				t.Errorf("COSRegionForVPCRegion() cosRegion = %v, want %v", cosRegion, tt.wantCOSRegion)
+			}
+			cosRegion, err = COSRegionForPowerVSRegion(tt.args.region)
+			if err != nil {
+				t.Errorf("COSRegionForPowerVSRegion() error = %v", err)
+			}
+			if cosRegion != tt.wantCOSRegion {
+				t.Errorf("COSRegionForPowerVSRegion() cosRegion = %v, want %v", cosRegion, tt.wantCOSRegion)
+			}
+		})
+	}
+}

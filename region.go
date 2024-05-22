@@ -3,8 +3,6 @@ package utils
 import (
 	"fmt"
 	"strings"
-
-	"k8s.io/apimachinery/pkg/util/sets"
 )
 
 func GetRegion(zone string) (region string, err error) {
@@ -57,11 +55,11 @@ var Regions = map[string]Region{
 		Description: "Dallas, USA",
 		VPCRegion:   "us-south",
 		COSRegion:   "us-south",
-		Zones:       []string{
+		Zones: []string{
 			"dal10",
 			"dal12",
 		},
-		SysTypes:    []string{"s922", "e980"},
+		SysTypes: []string{"s922", "e980"},
 	},
 	"eu-de": {
 		Description: "Frankfurt, Germany",
@@ -71,7 +69,7 @@ var Regions = map[string]Region{
 			"eu-de-1",
 			"eu-de-2",
 		},
-		SysTypes:    []string{"s922", "e980"},
+		SysTypes: []string{"s922", "e980"},
 	},
 	"lon": {
 		Description: "London, UK.",
@@ -81,17 +79,17 @@ var Regions = map[string]Region{
 			"lon04",
 			"lon06",
 		},
-		SysTypes:    []string{"s922", "e980"},
+		SysTypes: []string{"s922", "e980"},
 	},
 	"mad": {
 		Description: "Madrid, Spain",
 		VPCRegion:   "eu-es",
-		COSRegion:   "eu-de",		// @HACK - PowerVS says COS not supported in this region
+		COSRegion:   "eu-de", // @HACK - PowerVS says COS not supported in this region
 		Zones: []string{
 			"mad02",
 			"mad04",
 		},
-		SysTypes:    []string{"s1022"},
+		SysTypes: []string{"s1022"},
 	},
 	"mon": {
 		Description: "Montreal, Canada",
@@ -115,17 +113,17 @@ var Regions = map[string]Region{
 			"syd04",
 			"syd05",
 		},
-		SysTypes:    []string{"s922", "e980"},
+		SysTypes: []string{"s922", "e980"},
 	},
 	"sao": {
 		Description: "São Paulo, Brazil",
 		VPCRegion:   "br-sao",
 		COSRegion:   "br-sao",
-		Zones:       []string{
+		Zones: []string{
 			"sao01",
 			"sao04",
 		},
-		SysTypes:    []string{"s922", "e980"},
+		SysTypes: []string{"s922", "e980"},
 	},
 	"tok": {
 		Description: "Tokyo, Japan",
@@ -149,7 +147,7 @@ var Regions = map[string]Region{
 			"wdc06",
 			"wdc07",
 		},
-		SysTypes:    []string{"s922", "e980"},
+		SysTypes: []string{"s922", "e980"},
 	},
 }
 
@@ -253,13 +251,4 @@ func AvailableSysTypes(region string) ([]string, error) {
 		return nil, fmt.Errorf("unknown region name provided")
 	}
 	return knownRegion.SysTypes, nil
-}
-
-// AllKnownSysTypes returns aggregated known system types from all regions.
-func AllKnownSysTypes() sets.Set[string] {
-	sysTypes := sets.New[string]()
-	for _, region := range Regions {
-		sysTypes.Insert(region.SysTypes...)
-	}
-	return sysTypes
 }

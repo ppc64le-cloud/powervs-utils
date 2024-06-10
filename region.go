@@ -292,3 +292,13 @@ func IsGlobalRoutingRequiredForTG(powerVSRegion string, vpcRegion string) bool {
 	}
 	return true
 }
+
+// VPCZonesForVPCRegion returns the VPC zones associated with the VPC region.
+func VPCZonesForVPCRegion(region string) ([]string, error) {
+	for _, regionDetails := range Regions {
+		if regionDetails.VPCRegion == region {
+			return regionDetails.VPCZones, nil
+		}
+	}
+	return nil, fmt.Errorf("VPC zones corresponding to the VPC region %s is not found", region)
+}

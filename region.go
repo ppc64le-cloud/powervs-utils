@@ -34,6 +34,8 @@ func GetRegion(zone string) (region string, err error) {
 		region = "mad"
 	case strings.HasPrefix(zone, "wdc"):
 		region = "wdc"
+	case strings.HasPrefix(zone, "tor"):
+		region = "tor"
 	default:
 		return "", fmt.Errorf("region not found for the zone, talk to the developer to add the support into the tool: %s", zone)
 	}
@@ -47,6 +49,7 @@ type Region struct {
 	COSRegion   string
 	Zones       []string
 	SysTypes    []string
+	VPCZones    []string
 }
 
 // Regions provides a mapping between Power VS and IBM Cloud VPC and IBM COS regions.
@@ -60,6 +63,7 @@ var Regions = map[string]Region{
 			"dal12",
 		},
 		SysTypes: []string{"s922", "e980"},
+		VPCZones: []string{"us-south-1", "us-south-2", "us-south-3"},
 	},
 	"eu-de": {
 		Description: "Frankfurt, Germany",
@@ -70,6 +74,7 @@ var Regions = map[string]Region{
 			"eu-de-2",
 		},
 		SysTypes: []string{"s922", "e980"},
+		VPCZones: []string{"eu-de-1", "eu-de-2", "eu-de-3"},
 	},
 	"lon": {
 		Description: "London, UK.",
@@ -80,6 +85,7 @@ var Regions = map[string]Region{
 			"lon06",
 		},
 		SysTypes: []string{"s922", "e980"},
+		VPCZones: []string{"eu-gb-1", "eu-gb-2", "eu-gb-3"},
 	},
 	"mad": {
 		Description: "Madrid, Spain",
@@ -90,13 +96,15 @@ var Regions = map[string]Region{
 			"mad04",
 		},
 		SysTypes: []string{"s1022"},
+		VPCZones: []string{"eu-es-1", "eu-es-2", "eu-es-3"},
 	},
 	"mon": {
 		Description: "Montreal, Canada",
-		VPCRegion:   "ca-tor",
+		VPCRegion:   "",
 		COSRegion:   "ca-tor",
 		Zones:       []string{"mon01"},
 		SysTypes:    []string{"s922", "e980"},
+		VPCZones:    []string{},
 	},
 	"osa": {
 		Description: "Osaka, Japan",
@@ -104,16 +112,7 @@ var Regions = map[string]Region{
 		COSRegion:   "jp-osa",
 		Zones:       []string{"osa21"},
 		SysTypes:    []string{"s922", "e980"},
-	},
-	"syd": {
-		Description: "Sydney, Australia",
-		VPCRegion:   "au-syd",
-		COSRegion:   "au-syd",
-		Zones: []string{
-			"syd04",
-			"syd05",
-		},
-		SysTypes: []string{"s922", "e980"},
+		VPCZones:    []string{"jp-osa-1", "jp-osa-2", "jp-osa-3"},
 	},
 	"sao": {
 		Description: "São Paulo, Brazil",
@@ -124,6 +123,18 @@ var Regions = map[string]Region{
 			"sao04",
 		},
 		SysTypes: []string{"s922", "e980"},
+		VPCZones: []string{"br-sao-1", "br-sao-2", "br-sao-3"},
+	},
+	"syd": {
+		Description: "Sydney, Australia",
+		VPCRegion:   "au-syd",
+		COSRegion:   "au-syd",
+		Zones: []string{
+			"syd04",
+			"syd05",
+		},
+		SysTypes: []string{"s922", "e980"},
+		VPCZones: []string{"au-syd-1", "au-syd-2", "au-syd-3"},
 	},
 	"tok": {
 		Description: "Tokyo, Japan",
@@ -131,13 +142,33 @@ var Regions = map[string]Region{
 		COSRegion:   "jp-tok",
 		Zones:       []string{"tok04"},
 		SysTypes:    []string{"s922", "e980"},
+		VPCZones:    []string{"jp-tok-1", "jp-tok-2", "jp-tok-3"},
 	},
+	"tor": {
+		Description: "Toronto, Canada",
+		VPCRegion:   "ca-tor",
+		COSRegion:   "ca-tor",
+		Zones:       []string{"tor01"},
+		SysTypes:    []string{"s922", "e980"},
+		VPCZones:    []string{"ca-tor-1", "ca-tor-2", "ca-tor-3"},
+	}, // Keeping us-east and us-south zones as individual entries to easily map the respective VPC and COS regions by matching the prefix of the zone like in GetRegion()
 	"us-east": {
 		Description: "Washington DC, USA",
 		VPCRegion:   "us-east",
 		COSRegion:   "us-east",
 		Zones:       []string{"us-east"},
-		SysTypes:    []string{}, // Missing
+		SysTypes:    []string{"s922", "e980"},
+		VPCZones:    []string{"us-east-1", "us-east-2", "us-east-3"},
+	},
+	"us-south": {
+		Description: "Dallas, USA",
+		VPCRegion:   "us-south",
+		COSRegion:   "us-south",
+		Zones: []string{
+			"us-south",
+		},
+		SysTypes: []string{"s922", "e980"},
+		VPCZones: []string{"us-south-1", "us-south-2", "us-south-3"},
 	},
 	"wdc": {
 		Description: "Washington DC, USA",
@@ -148,6 +179,7 @@ var Regions = map[string]Region{
 			"wdc07",
 		},
 		SysTypes: []string{"s922", "e980"},
+		VPCZones: []string{"us-east-1", "us-east-2", "us-east-3"},
 	},
 }
 
@@ -251,4 +283,12 @@ func AvailableSysTypes(region string) ([]string, error) {
 		return nil, fmt.Errorf("unknown region name provided")
 	}
 	return knownRegion.SysTypes, nil
+}
+
+// IsGlobalRoutingRequiredForTG returns true when powervs and vpc regions are different.
+func IsGlobalRoutingRequiredForTG(powerVSRegion string, vpcRegion string) bool {
+	if r, ok := Regions[powerVSRegion]; ok && r.VPCRegion == vpcRegion {
+		return false
+	}
+	return true
 }

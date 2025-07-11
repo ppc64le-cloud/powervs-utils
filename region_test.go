@@ -385,7 +385,7 @@ func TestAvailableSysTypes(t *testing.T) {
 			expectedError: fmt.Errorf("unknown region name provided"),
 		},
 		{
-			testcasename:  "Unkown zone name",
+			testcasename:  "Unknown zone name",
 			region:        "us-south",
 			zoneName:      "unknown",
 			expectedError: fmt.Errorf("unknown zone name provided"),
@@ -394,7 +394,7 @@ func TestAvailableSysTypes(t *testing.T) {
 			testcasename:  "Systypes available",
 			region:        "wdc",
 			zoneName:      "wdc07",
-			systypes:      []string{"e1050", "e1080", "e980", "s1022", "s922"},
+			systypes:      []string{"e1050", "e1080", "e980", "s1022"},
 			expectedError: nil,
 		},
 	}

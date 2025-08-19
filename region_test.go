@@ -394,7 +394,7 @@ func TestAvailableSysTypes(t *testing.T) {
 			testcasename:  "Systypes available",
 			region:        "wdc",
 			zoneName:      "wdc07",
-			systypes:      []string{"e1050", "e1080", "e980", "s1022"},
+			systypes:      []string{"e1050", "e1080", "e980", "s1022", "s922"},
 			expectedError: nil,
 		},
 	}

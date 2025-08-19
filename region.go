@@ -8,7 +8,7 @@ import (
 // SysTypes denotes the available system types against individual zones
 // The system types against each zone can be fetched using either of the following:
 // 1. ibmcloud cli command
-//    `ibmcloud pi datacenter ls --json | jq -r '.datacenters[] | "\(.location.region),\(.capabilitiesDetails.supportedSystems.general[])"' | sort -u`
+//    `ibmcloud pi datacenter ls --json | jq -r '.datacenters[] | "\(.location.region),\(.capabilitiesDetails.supportedSystems.general[])"' | awk -F, '{if($1 in m){m[$1]=m[$1]", \""$2"\""}else{m[$1]="\"" $2 "\""}} END{for(k in m) print "\""k"\": {" m[k] "}"}' | sort`
 // 2. https://cloud.ibm.com/apidocs/power-cloud#v1-datacenters-getall (the above command uses this api underneath).
 
 type SysTypes []string
@@ -76,8 +76,8 @@ var regions = map[string]Region{
 		COSRegion:   "us-south",
 		Zones: map[string]SysTypes{
 			"dal10": {"e1080", "e980", "s1022", "s922"},
-			"dal12": {"e1080", "e1050", "e980", "s1022"},
-			"dal14": {"e1050", "e1080", "s1022"},
+			"dal12": {"e1080", "e1050", "e980", "s1022", "s922"},
+			"dal14": {"e1050", "e1080", "s1122", "s1022"},
 		},
 		VPCZones: []string{"us-south-1", "us-south-2", "us-south-3"},
 	},
@@ -86,7 +86,7 @@ var regions = map[string]Region{
 		VPCRegion:   "eu-de",
 		COSRegion:   "eu-de",
 		Zones: map[string]SysTypes{
-			"eu-de-1": {"e1080", "e1050", "e980", "s1022", "s922"},
+			"eu-de-1": {"e1080", "e1050", "e980", "s1122", "s1022", "s922"},
 			"eu-de-2": {"e980", "s1022", "s922"},
 		},
 		VPCZones: []string{"eu-de-1", "eu-de-2", "eu-de-3"},
@@ -106,7 +106,7 @@ var regions = map[string]Region{
 		VPCRegion:   "eu-es",
 		COSRegion:   "eu-de", // @HACK - PowerVS says COS not supported in this region
 		Zones: map[string]SysTypes{
-			"mad02": {"e1050", "e1080", "e980", "s1022", "s922"},
+			"mad02": {"e1050", "e1080", "e980", "s1122", "s1022", "s922"},
 			"mad04": {"e1050", "e1080", "e980", "s1022"},
 		},
 		VPCZones: []string{"eu-es-1", "eu-es-2", "eu-es-3"},
@@ -190,8 +190,8 @@ var regions = map[string]Region{
 		VPCRegion:   "us-east",
 		COSRegion:   "us-east",
 		Zones: map[string]SysTypes{
-			"wdc06": {"e1050", "e1080", "e980", "s1022", "s922"},
-			"wdc07": {"e1050", "e1080", "e980", "s1022"},
+			"wdc06": {"e1050", "e1080", "e980", "s1122", "s1022", "s922"},
+			"wdc07": {"e1050", "e1080", "e980", "s1022", "s922"},
 		},
 		VPCZones: []string{"us-east-1", "us-east-2", "us-east-3"},
 	},
